@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "392415090968",
+    "firebase_url": "https://tech-218a6-default-rtdb.firebaseio.com",
+    "project_id": "tech-218a6",
+    "storage_bucket": "tech-218a6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392415090968:android:3b728d5dd718d889b5a66d",
+        "android_client_info": {
+          "package_name": "com.example.techlap_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACw00G1Arwz4t6W3Q0HG50IqZp8AJheYI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
