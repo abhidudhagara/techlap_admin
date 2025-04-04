@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/firestore_service.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // For password hashing
+import '../services/firestore_service.dart'; // For password hashing
 
 class AddUserScreen extends StatefulWidget {
   const AddUserScreen({super.key});

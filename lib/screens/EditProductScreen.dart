@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:techlap_admin/services/firestore_service.dart';
 
 class EditProductScreen extends StatefulWidget {
