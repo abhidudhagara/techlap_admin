@@ -12,6 +12,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
   String _productName = '';
   String _productPrice = '';
+  String _productDescription = '';
   String? _selectedCategory;
   String? _selectedBrand;
   String _imageUrl = '';
@@ -45,20 +46,31 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
       _formKey.currentState!.save();
 
-      await _firestoreService.addProduct(
-        name: _productName,
-        price: double.parse(_productPrice),
-        category: _selectedCategory!,
-        brand: _selectedBrand!,
-        imageUrl: _imageUrl,
-      );
+      try {
+        await _firestoreService.addProduct(
+          name: _productName,
+          price: double.parse(_productPrice),
+          category: _selectedCategory!,
+          brand: _selectedBrand!,
+          imageUrl: _imageUrl,
+          description: _productDescription,
+        );
 
-      setState(() {
-        _isUploading = false;
-      });
-
-      if (mounted) {
-        Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error adding product: $e')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isUploading = false;
+          });
+        }
       }
     }
   }
@@ -83,7 +95,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   labelText: 'Product Name',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) => value!.isEmpty ? 'Enter product name' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Enter product name' : null,
                 onSaved: (value) => _productName = value!,
               ),
               const SizedBox(height: 16),
@@ -97,10 +110,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value!.isEmpty) return 'Enter price';
-                  if (double.tryParse(value) == null) return 'Enter a valid price';
+                  if (double.tryParse(value) == null)
+                    return 'Enter a valid price';
                   return null;
                 },
                 onSaved: (value) => _productPrice = value!,
+              ),
+              const SizedBox(height: 16),
+
+              // Description
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+                validator: (value) =>
+                    value!.isEmpty ? 'Enter product description' : null,
+                onSaved: (value) => _productDescription = value!,
               ),
               const SizedBox(height: 16),
 
@@ -112,10 +139,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ),
                 value: _selectedCategory,
                 items: _categories.map((category) {
-                  return DropdownMenuItem(value: category, child: Text(category));
+                  return DropdownMenuItem(
+                      value: category, child: Text(category));
                 }).toList(),
                 onChanged: (value) => setState(() => _selectedCategory = value),
-                validator: (value) => value == null ? 'Select a category' : null,
+                validator: (value) =>
+                    value == null ? 'Select a category' : null,
               ),
               const SizedBox(height: 16),
 

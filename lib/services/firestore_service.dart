@@ -41,6 +41,7 @@ class FirestoreService {
     required String category,
     required String brand,
     required String imageUrl,
+    required String description,
   }) async {
     await _db.collection('products').add({
       'name': name,
@@ -48,6 +49,7 @@ class FirestoreService {
       'category': category,
       'brand': brand,
       'imageUrl': imageUrl,
+      'description': description,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -59,7 +61,8 @@ class FirestoreService {
   }
 
   // Update product
-  Future<void> updateProduct(String productId, Map<String, dynamic> updatedData) async {
+  Future<void> updateProduct(
+      String productId, Map<String, dynamic> updatedData) async {
     await _db.collection('products').doc(productId).update(updatedData);
   }
 
@@ -83,7 +86,10 @@ class FirestoreService {
 
   // Stream to get categories
   Stream<QuerySnapshot> getCategoriesStream() {
-    return _db.collection('categories').orderBy('createdAt', descending: true).snapshots();
+    return _db
+        .collection('categories')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
   }
 
   // Delete category ✅ (Admin check removed)
@@ -106,7 +112,10 @@ class FirestoreService {
 
   // Get Brands as a Stream
   Stream<QuerySnapshot> getBrandsStream() {
-    return _db.collection('brands').orderBy('createdAt', descending: true).snapshots();
+    return _db
+        .collection('brands')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
   }
 
   // Delete Brand
@@ -117,7 +126,8 @@ class FirestoreService {
   // Upload Image to Firebase Storage
   Future<String?> uploadImage(File image) async {
     try {
-      String filePath = 'brand_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      String filePath =
+          'brand_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
       TaskSnapshot taskSnapshot = await _storage.ref(filePath).putFile(image);
       return await taskSnapshot.ref.getDownloadURL();
     } catch (e) {
@@ -126,13 +136,17 @@ class FirestoreService {
   }
 
   // Update Brand Information
-  Future<void> updateBrand(String brandId, Map<String, dynamic> updatedData) async {
+  Future<void> updateBrand(
+      String brandId, Map<String, dynamic> updatedData) async {
     await _db.collection('brands').doc(brandId).update(updatedData);
   }
 
   // Fetch products by brand
   Stream<QuerySnapshot> getProductsByBrand(String brand) {
-    return _db.collection('products').where('brand', isEqualTo: brand).snapshots();
+    return _db
+        .collection('products')
+        .where('brand', isEqualTo: brand)
+        .snapshots();
   }
 
   // Fetch all users
