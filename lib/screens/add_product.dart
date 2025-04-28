@@ -14,7 +14,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   String _productPrice = '';
   String? _selectedCategory;
   String? _selectedBrand;
-  String _imageUrl = ''; // ✅ Accepts Image URL instead of File
+  String _imageUrl = '';
   bool _isUploading = false;
 
   List<String> _categories = [];
@@ -50,7 +50,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         price: double.parse(_productPrice),
         category: _selectedCategory!,
         brand: _selectedBrand!,
-        imageUrl: _imageUrl, // ✅ Storing Image URL instead of File Upload
+        imageUrl: _imageUrl,
       );
 
       setState(() {
@@ -66,20 +66,34 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Product')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(
+        title: const Text('Add Product'),
+        backgroundColor: Colors.red,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Product Name
               TextFormField(
-                decoration: const InputDecoration(labelText: 'Product Name'),
+                decoration: const InputDecoration(
+                  labelText: 'Product Name',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) => value!.isEmpty ? 'Enter product name' : null,
                 onSaved: (value) => _productName = value!,
               ),
+              const SizedBox(height: 16),
+
+              // Price
               TextFormField(
-                decoration: const InputDecoration(labelText: 'Price'),
+                decoration: const InputDecoration(
+                  labelText: 'Price',
+                  border: OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value!.isEmpty) return 'Enter price';
@@ -88,40 +102,89 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 },
                 onSaved: (value) => _productPrice = value!,
               ),
+              const SizedBox(height: 16),
+
+              // Category Dropdown
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  border: OutlineInputBorder(),
+                ),
                 value: _selectedCategory,
                 items: _categories.map((category) {
                   return DropdownMenuItem(value: category, child: Text(category));
                 }).toList(),
                 onChanged: (value) => setState(() => _selectedCategory = value),
+                validator: (value) => value == null ? 'Select a category' : null,
               ),
+              const SizedBox(height: 16),
+
+              // Brand Dropdown
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Brand'),
+                decoration: const InputDecoration(
+                  labelText: 'Brand',
+                  border: OutlineInputBorder(),
+                ),
                 value: _selectedBrand,
                 items: _brands.map((brand) {
                   return DropdownMenuItem(value: brand, child: Text(brand));
                 }).toList(),
                 onChanged: (value) => setState(() => _selectedBrand = value),
+                validator: (value) => value == null ? 'Select a brand' : null,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // ✅ Image URL Input Field
+              // Image URL
               TextFormField(
-                decoration: const InputDecoration(labelText: 'Image URL'),
+                decoration: const InputDecoration(
+                  labelText: 'Image URL',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) => value!.isEmpty ? 'Enter image URL' : null,
+                onChanged: (value) {
+                  setState(() {
+                    _imageUrl = value;
+                  });
+                },
                 onSaved: (value) => _imageUrl = value!,
               ),
-
               const SizedBox(height: 20),
-              _imageUrl.isNotEmpty
-                  ? Image.network(_imageUrl, height: 100)
-                  : const Icon(Icons.image, size: 50, color: Colors.grey),
 
-              const SizedBox(height: 20),
+              // Image Preview
+              Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _imageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          _imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(
+                          Icons.image,
+                          size: 60,
+                          color: Colors.grey,
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 24),
+
+              // Upload Button
               _isUploading
-                  ? const CircularProgressIndicator()
+                  ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        textStyle: const TextStyle(fontSize: 16),
+                      ),
                       onPressed: _saveProduct,
                       child: const Text('Add Product'),
                     ),

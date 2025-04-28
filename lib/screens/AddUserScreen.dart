@@ -5,16 +5,16 @@ class AddUserScreen extends StatefulWidget {
   const AddUserScreen({super.key});
 
   @override
-  _AddUserScreenState createState() => _AddUserScreenState();
+  State<AddUserScreen> createState() => _AddUserScreenState();
 }
 
 class _AddUserScreenState extends State<AddUserScreen> {
   final _formKey = GlobalKey<FormState>();
   String _userName = '';
   String _userEmail = '';
-  String _userRole = 'user';  // Default role as 'user'
-  String _userStatus = 'active'; // Default status as 'active'
-  String _password = '';  // Password for the user
+  String _userRole = 'user'; // Default role
+  String _userStatus = 'active'; // Default status
+  String _password = '';
 
   final FirestoreService _firestoreService = FirestoreService();
 
@@ -22,77 +22,174 @@ class _AddUserScreenState extends State<AddUserScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // Hash the password before saving to Firestore
-      // For demonstration, we'll store it as plain text. In production, make sure to hash the password
       await _firestoreService.addUser({
         'name': _userName,
         'email': _userEmail,
         'role': _userRole,
         'status': _userStatus,
-        'password': _password, // Store hashed password in real applications
+        'password': _password,
       });
-      
-      Navigator.pop(context);  // Go back after adding user
+
+      if (mounted) Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add User')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'User Name'),
-                validator: (value) => value!.isEmpty ? 'Enter user name' : null,
-                onSaved: (value) => _userName = value!,
+      backgroundColor: Colors.grey[200], // Light background
+      appBar: AppBar(
+        title: const Text('Add User'),
+        backgroundColor: Colors.red,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            constraints: const BoxConstraints(maxWidth: 500), // Center card on large screens too
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Enter User Details',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // User Name
+                  _buildTextField(
+                    label: 'User Name',
+                    onSaved: (value) => _userName = value!,
+                    validator: (value) => value!.isEmpty ? 'Enter user name' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // User Email
+                  _buildTextField(
+                    label: 'User Email',
+                    onSaved: (value) => _userEmail = value!,
+                    validator: (value) => value!.isEmpty ? 'Enter user email' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Password
+                  _buildTextField(
+                    label: 'Password',
+                    obscureText: true,
+                    onSaved: (value) => _password = value!,
+                    validator: (value) => value!.isEmpty ? 'Enter password' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // User Role
+                  _buildDropdownField(
+                    label: 'User Role',
+                    value: _userRole,
+                    items: ['admin', 'user'],
+                    onChanged: (value) => setState(() => _userRole = value!),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // User Status
+                  _buildDropdownField(
+                    label: 'User Status',
+                    value: _userStatus,
+                    items: ['active', 'inactive'],
+                    onChanged: (value) => setState(() => _userStatus = value!),
+                  ),
+                  const SizedBox(height: 30),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _saveUser,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Save User',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'User Email'),
-                validator: (value) {
-                  if (value!.isEmpty) return 'Enter user email';
-                  return null;
-                },
-                onSaved: (value) => _userEmail = value!,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value!.isEmpty) return 'Enter user password';
-                  return null;
-                },
-                onSaved: (value) => _password = value!,
-              ),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'User Role'),
-                value: _userRole,
-                items: ['admin', 'user'].map((role) {
-                  return DropdownMenuItem(value: role, child: Text(role));
-                }).toList(),
-                onChanged: (value) => setState(() => _userRole = value!),
-              ),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'User Status'),
-                value: _userStatus,
-                items: ['active', 'inactive'].map((status) {
-                  return DropdownMenuItem(value: status, child: Text(status));
-                }).toList(),
-                onChanged: (value) => setState(() => _userStatus = value!),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveUser,
-                child: const Text('Add User'),
-              ),
-            ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  // Build Text Field
+  Widget _buildTextField({
+    required String label,
+    bool obscureText = false,
+    required FormFieldSetter<String> onSaved,
+    required FormFieldValidator<String> validator,
+  }) {
+    return TextFormField(
+      decoration: _inputDecoration(label),
+      obscureText: obscureText,
+      onSaved: onSaved,
+      validator: validator,
+    );
+  }
+
+  // Build Dropdown Field
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      decoration: _inputDecoration(label),
+      value: value,
+      items: items.map((item) {
+        return DropdownMenuItem(
+          value: item,
+          child: Text(item.toUpperCase()),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  // Common Decoration
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.grey[100],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
 }
