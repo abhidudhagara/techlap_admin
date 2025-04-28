@@ -45,7 +45,7 @@ class AdminDashboard extends StatelessWidget {
       'totalOrders': ordersSnapshot.size,
       'totalProducts': productsSnapshot.size,
       'totalUsers': usersSnapshot.size,
-      'revenue': '\$15,000',  // Placeholder for real revenue calculation
+      'revenue': '\$15,000', // Placeholder for real revenue calculation
     };
   }
 
